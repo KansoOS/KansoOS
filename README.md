@@ -23,16 +23,27 @@ Chaque dossier ci-dessus est une **copie en lecture seule** du dernier `master`/
 Les `.env` de chaque sous-projet sont gitignorés dans leur repo source, donc jamais synchronisés ici — un `Makefile` à la racine gère ça et orchestre les deux projets sans avoir à connaître leurs commandes internes :
 
 ```bash
-make setup    # crée les .env manquants (secrets générés pour le backend)
-make up       # lance backend + dashboard en Docker, applique les migrations Prisma
-make test     # lance les tests des deux
-make build    # vérifie que les deux compilent
-make down     # arrête tout
-make help     # liste toutes les commandes
+make setup          # crée les .env manquants (secrets + ports dédiés à la vitrine)
+make up             # lance backend + dashboard en Docker, applique les migrations Prisma
+make test           # lance les tests des deux
+make build          # vérifie que les deux compilent
+make down           # arrête tout
+make logs-backend   # logs du backend en continu
+make logs-dashboard # logs du dashboard en continu
+make help           # liste toutes les commandes
 ```
 
-`make up` affiche les URLs une fois lancé : backend sur `http://localhost:3000`, dashboard sur `http://localhost:8081`.
+`make up` affiche les URLs une fois lancé : backend sur `http://localhost:3100`, dashboard sur `http://localhost:8181`.
 
-⚠️ **`backend-mdm/` et `dashboard-web/` réutilisent les mêmes noms de conteneurs/ports que vos checkouts de dev habituels** (`kanso-mdm-dev`, `kanso-dashboard-dev` — définis en dur dans leurs `docker-compose.yml`). `make up` ici recrée ces mêmes conteneurs plutôt que d'en lancer une deuxième instance à côté : n'utilise pas la vitrine et ton checkout de dev en même temps, ils se marchent dessus.
+**Tourne à côté d'un checkout de dev habituel sans collision**, sur des ports et des noms de conteneurs dédiés à la vitrine :
+
+| | Dev habituel | Vitrine (ici) |
+|---|---|---|
+| Backend | `http://localhost:3000` | `http://localhost:3100` |
+| Postgres | `localhost:5432` | `localhost:5433` |
+| Dashboard | `http://localhost:8081` | `http://localhost:8181` |
+| Conteneurs | `kanso-mdm-*-dev`, `kanso-dashboard-*-dev` | `kanso-vitrine-mdm-*`, `kanso-vitrine-dashboard-*` |
+
+Ça marche parce que `backend-mdm/docker-compose.yml` et `dashboard-web/docker-compose.yml` dérivent noms de conteneurs/volume/réseau du nom de projet Compose (`COMPOSE_PROJECT_NAME`, posé par le `Makefile`) plutôt que de les figer en dur — les ports viennent du `.env` généré par `make setup` (`APP_PORT`, `POSTGRES_PORT`, `WEB_PORT`, `CORS_ORIGIN`, `VITE_API_BASE_URL`). En prod, chaque repo garde ses ports "classiques" habituels (`docker-compose.prod.yml`, jamais touché par tout ça) — cette isolation ne concerne que l'usage local de la vitrine.
 
 `infra/` n'a pas encore de contenu exécutable (juste un README pour l'instant).
