@@ -1,0 +1,17 @@
+name: kanso-dashboard-dev
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: kanso-dashboard-web-dev
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:3000}
+      VITE_USE_MOCKS: ${VITE_USE_MOCKS:-true}
+      CHOKIDAR_USEPOLLING: 'true'
+    ports:
+      - '${WEB_PORT:-8081}:5173'
+    volumes:
+      - .:/app
+      - /app/node_modules
