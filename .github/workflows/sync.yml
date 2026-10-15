@@ -7,13 +7,13 @@ on:
   workflow_dispatch:
     inputs:
       repo:
-        description: "Repo source à synchroniser"
+        description: "Repo GitHub source à synchroniser (nom réel du repo, pas le nom du dossier local de dev)"
         required: true
         type: choice
         options:
-          - backend-mdm
-          - dashboard-web
-          - infra
+          - kanso-mdm-backend
+          - kanso-web-dashboard
+          - kanso-infra
 
 permissions:
   contents: write
@@ -31,34 +31,45 @@ jobs:
       - name: Checkout KansoOS
         uses: actions/checkout@v4
 
+      - name: Détermine le nom du dossier de destination
+        env:
+          REPO: ${{ inputs.repo }}
+        run: |
+          set -euo pipefail
+          case "$REPO" in
+            kanso-mdm-backend) DEST=backend-mdm ;;
+            kanso-web-dashboard) DEST=dashboard-web ;;
+            kanso-infra) DEST=infra ;;
+            *) echo "Repo inconnu: $REPO" >&2; exit 1 ;;
+          esac
+          echo "DEST=$DEST" >> "$GITHUB_ENV"
+
       - name: Clone la dernière version de ${{ inputs.repo }}
         env:
           REPO: ${{ inputs.repo }}
           SYNC_TOKEN: ${{ secrets.SYNC_TOKEN }}
         run: |
           set -euo pipefail
-          rm -rf "$REPO"
-          git clone --depth 1 "https://x-access-token:${SYNC_TOKEN}@github.com/KansoOS/${REPO}.git" "$REPO"
-          echo "SHA=$(git -C "$REPO" rev-parse --short HEAD)" >> "$GITHUB_ENV"
+          rm -rf "$DEST"
+          git clone --depth 1 "https://x-access-token:${SYNC_TOKEN}@github.com/KansoOS/${REPO}.git" "$DEST"
+          echo "SHA=$(git -C "$DEST" rev-parse --short HEAD)" >> "$GITHUB_ENV"
           # Métadonnées git du repo source et artefacts de build : pas leur place ici.
-          rm -rf "$REPO/.git" \
-                 "$REPO"/node_modules "$REPO"/*/node_modules \
-                 "$REPO"/dist "$REPO"/*/dist \
-                 "$REPO"/build "$REPO"/*/build \
-                 "$REPO"/coverage "$REPO"/*/coverage \
-                 "$REPO"/.next
+          rm -rf "$DEST/.git" \
+                 "$DEST"/node_modules "$DEST"/*/node_modules \
+                 "$DEST"/dist "$DEST"/*/dist \
+                 "$DEST"/build "$DEST"/*/build \
+                 "$DEST"/coverage "$DEST"/*/coverage \
+                 "$DEST"/.next
 
       - name: Commit et push si besoin
-        env:
-          REPO: ${{ inputs.repo }}
         run: |
           set -euo pipefail
           git config user.name "kanso-sync-bot"
           git config user.email "bot@kansoos.dev"
-          git add -A -- "$REPO"
+          git add -A -- "$DEST"
           if git diff --cached --quiet; then
-            echo "Rien de nouveau pour $REPO"
+            echo "Rien de nouveau pour $DEST"
             exit 0
           fi
-          git commit -m "sync: $REPO@$SHA"
+          git commit -m "sync: $DEST@$SHA"
           git push

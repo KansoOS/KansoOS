@@ -6,9 +6,9 @@ Monorepo vitrine de l'organisation **KansoOS** : une copie à jour du code néce
 
 | Dossier | Repo source | Description |
 |---|---|---|
-| [`backend-mdm/`](./backend-mdm) | [KansoOS/backend-mdm](https://github.com/KansoOS/backend-mdm) | API (NestJS + Prisma) |
-| [`dashboard-web/`](./dashboard-web) | [KansoOS/dashboard-web](https://github.com/KansoOS/dashboard-web) | Dashboard (React + Vite) |
-| [`infra/`](./infra) | [KansoOS/infra](https://github.com/KansoOS/infra) | Configuration infra |
+| [`backend-mdm/`](./backend-mdm) | [KansoOS/kanso-mdm-backend](https://github.com/KansoOS/kanso-mdm-backend) | API (NestJS + Prisma) |
+| [`dashboard-web/`](./dashboard-web) | [KansoOS/kanso-web-dashboard](https://github.com/KansoOS/kanso-web-dashboard) | Dashboard (React + Vite) |
+| [`infra/`](./infra) | [KansoOS/kanso-infra](https://github.com/KansoOS/kanso-infra) | Configuration infra |
 
 Automation de l'organisation (dont le worker qui alimente cette synchro) : [KansoOS/.github](https://github.com/KansoOS/.github) — pas mirorée ici, c'est de la méta-configuration plutôt que du code produit.
 
