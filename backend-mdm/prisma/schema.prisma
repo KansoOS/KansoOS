@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Helper {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // AES-256-GCM encrypted base32 secret
+  totpSecretEncrypted String?
+  totpEnabled         Boolean   @default(false)
+  // Last accepted 30s time step
+  totpLastUsedStep    Int?
+  mfaFailedAttempts   Int       @default(0)
+  mfaLockedUntil      DateTime?
+
+  recoveryCodes RecoveryCode[]
+  sessions      Session[]
+}
+
+model RecoveryCode {
+  id        String    @id @default(uuid())
+  helperId  String
+  helper    Helper    @relation(fields: [helperId], references: [id], onDelete: Cascade)
+  // Keyed HMAC of the code, never the code itself.
+  codeHash  String
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@unique([helperId, codeHash])
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  helperId  String
+  helper    Helper   @relation(fields: [helperId], references: [id], onDelete: Cascade)
+  // Keyed HMAC of the cookie value, never the raw token.
+  tokenHash String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  lastActivityAt DateTime @default(now())
+}

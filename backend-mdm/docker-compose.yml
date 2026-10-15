@@ -1,0 +1,64 @@
+name: kanso-mdm-dev
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: kanso-mdm-db-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - db_data_dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [backend]
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: kanso-mdm-app-dev
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public
+      JWT_SECRET: ${JWT_SECRET}
+      TOTP_ENCRYPTION_KEY: ${TOTP_ENCRYPTION_KEY}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+      PORT: ${APP_PORT:-3000}
+      CHOKIDAR_USEPOLLING: 'true'
+    ports:
+      - '${APP_PORT:-3000}:3000'
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks: [backend]
+
+  # ponytail: adminer only via `--profile tools`, pas en dev par défaut
+  adminer:
+    image: adminer:4
+    container_name: kanso-mdm-adminer-dev
+    profiles: [tools]
+    ports:
+      - '8080:8080'
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [backend]
+
+volumes:
+  db_data_dev:
+    name: kanso-mdm-db-data-dev
+
+networks:
+  backend:
+    name: kanso-mdm-net-dev
