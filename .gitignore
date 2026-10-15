@@ -1,0 +1,4 @@
+# .env générés localement par `make setup` (secrets) — jamais commités, comme
+# dans leurs repos source respectifs.
+**/.env
+**/.env.*.local
