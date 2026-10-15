@@ -1,0 +1,64 @@
+name: Sync subrepo
+
+# Déclenché par le Worker auto-draft-pr (voir .github/automation/draft-pr-worker
+# dans le repo .github) à chaque push sur la branche par défaut d'un repo suivi.
+# Peut aussi être lancé à la main depuis l'onglet Actions.
+on:
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: "Repo source à synchroniser"
+        required: true
+        type: choice
+        options:
+          - backend-mdm
+          - dashboard-web
+          - infra
+
+permissions:
+  contents: write
+
+# Sérialise les synchros : deux repos qui pushent en même temps ne doivent pas
+# se marcher dessus en poussant sur KansoOS en parallèle.
+concurrency:
+  group: kanso-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout KansoOS
+        uses: actions/checkout@v4
+
+      - name: Clone la dernière version de ${{ inputs.repo }}
+        env:
+          REPO: ${{ inputs.repo }}
+          SYNC_TOKEN: ${{ secrets.SYNC_TOKEN }}
+        run: |
+          set -euo pipefail
+          rm -rf "$REPO"
+          git clone --depth 1 "https://x-access-token:${SYNC_TOKEN}@github.com/KansoOS/${REPO}.git" "$REPO"
+          echo "SHA=$(git -C "$REPO" rev-parse --short HEAD)" >> "$GITHUB_ENV"
+          # Métadonnées git du repo source et artefacts de build : pas leur place ici.
+          rm -rf "$REPO/.git" \
+                 "$REPO"/node_modules "$REPO"/*/node_modules \
+                 "$REPO"/dist "$REPO"/*/dist \
+                 "$REPO"/build "$REPO"/*/build \
+                 "$REPO"/coverage "$REPO"/*/coverage \
+                 "$REPO"/.next
+
+      - name: Commit et push si besoin
+        env:
+          REPO: ${{ inputs.repo }}
+        run: |
+          set -euo pipefail
+          git config user.name "kanso-sync-bot"
+          git config user.email "bot@kansoos.dev"
+          git add -A -- "$REPO"
+          if git diff --cached --quiet; then
+            echo "Rien de nouveau pour $REPO"
+            exit 0
+          fi
+          git commit -m "sync: $REPO@$SHA"
+          git push
