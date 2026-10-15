@@ -1,3 +1,6 @@
+# Nom de projet par défaut ; override avec `COMPOSE_PROJECT_NAME=...` pour
+# faire tourner une deuxième instance isolée en parallèle (conteneur dérivé de
+# ce nom, donc pas de collision — voir KansoOS/Makefile).
 name: kanso-dashboard-dev
 
 services:
@@ -5,7 +8,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    container_name: kanso-dashboard-web-dev
     environment:
       VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:3000}
       VITE_USE_MOCKS: ${VITE_USE_MOCKS:-true}
