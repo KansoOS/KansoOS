@@ -87,6 +87,14 @@ jobs:
           git config user.name "kanso-sync-bot"
           git config user.email "bot@kansoos.dev"
           git add -A -- "$DEST"
+          # Le .gitignore du repo source (synchronisé avec lui) ignore son
+          # propre dist/ — ce qui a du sens pour LUI, pas pour nous puisqu'on
+          # veut justement le committer ici. On force UNIQUEMENT ce
+          # sous-dossier (jamais tout "$DEST" en force : ça contournerait
+          # aussi la protection du .gitignore racine sur les .env locaux).
+          if [ -d "$DEST/dist" ]; then
+            git add -f -- "$DEST/dist"
+          fi
           if git diff --cached --quiet; then
             echo "Rien de nouveau pour $DEST"
             exit 0
