@@ -6,7 +6,7 @@ Monorepo vitrine de l'organisation **KansoOS** : une copie à jour du code néce
 
 | Dossier | Repo source | Description |
 |---|---|---|
-| [`backend-mdm/`](./backend-mdm) | [KansoOS/kanso-mdm-backend](https://github.com/KansoOS/kanso-mdm-backend) | API (NestJS + Prisma) — synchronisé **avec son `dist/` déjà construit** (voir `sync.yml`), en plus des sources : pas besoin de compiler pour l'exécuter ailleurs que via `make up` |
+| [`backend-mdm/`](./backend-mdm) | [KansoOS/kanso-mdm-backend](https://github.com/KansoOS/kanso-mdm-backend) | API (NestJS + Prisma) |
 | [`dashboard-web/`](./dashboard-web) | [KansoOS/kanso-web-dashboard](https://github.com/KansoOS/kanso-web-dashboard) | Dashboard (React + Vite) |
 | [`infra/`](./infra) | [KansoOS/kanso-infra](https://github.com/KansoOS/kanso-infra) | Configuration infra |
 

@@ -53,8 +53,7 @@ jobs:
           rm -rf "$DEST"
           git clone --depth 1 "https://x-access-token:${SYNC_TOKEN}@github.com/KansoOS/${REPO}.git" "$DEST"
           echo "SHA=$(git -C "$DEST" rev-parse --short HEAD)" >> "$GITHUB_ENV"
-          # Métadonnées git du repo source et artefacts de build : pas leur place ici
-          # (le backend regénère son dist/ juste après, à l'étape suivante).
+          # Métadonnées git du repo source et artefacts de build : pas leur place ici.
           rm -rf "$DEST/.git" \
                  "$DEST"/node_modules "$DEST"/*/node_modules \
                  "$DEST"/dist "$DEST"/*/dist \
@@ -62,39 +61,12 @@ jobs:
                  "$DEST"/coverage "$DEST"/*/coverage \
                  "$DEST"/.next
 
-      - name: Installe Node (backend uniquement, pour le build qui suit)
-        if: inputs.repo == 'kanso-mdm-backend'
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Build le backend — dist/ prêt à l'emploi, en plus des sources
-        if: inputs.repo == 'kanso-mdm-backend'
-        working-directory: ${{ env.DEST }}
-        run: |
-          set -euo pipefail
-          npm ci --no-audit --no-fund
-          npx prisma generate
-          npm run build
-          # node_modules ne sert plus qu'à produire dist/ : on l'enlève pour
-          # garder la vitrine légère (l'exécuter ailleurs suppose un
-          # `npm ci --omit=dev` normal, comme pour n'importe quel package).
-          rm -rf node_modules
-
       - name: Commit et push si besoin
         run: |
           set -euo pipefail
           git config user.name "kanso-sync-bot"
           git config user.email "bot@kansoos.dev"
           git add -A -- "$DEST"
-          # Le .gitignore du repo source (synchronisé avec lui) ignore son
-          # propre dist/ — ce qui a du sens pour LUI, pas pour nous puisqu'on
-          # veut justement le committer ici. On force UNIQUEMENT ce
-          # sous-dossier (jamais tout "$DEST" en force : ça contournerait
-          # aussi la protection du .gitignore racine sur les .env locaux).
-          if [ -d "$DEST/dist" ]; then
-            git add -f -- "$DEST/dist"
-          fi
           if git diff --cached --quiet; then
             echo "Rien de nouveau pour $DEST"
             exit 0

@@ -1,1 +1,0 @@
-{"version":3,"file":"mfa-recovery.dto.js","sourceRoot":"","sources":["../../../src/auth/dto/mfa-recovery.dto.ts"],"names":[],"mappings":";;;;;;;;;;;;AAAA,qDAA8D;AAE9D,MAAa,cAAc;IAGzB,QAAQ,CAAS;IAKjB,YAAY,CAAS;CACtB;AATD,wCASC;AANC;IAFC,IAAA,0BAAQ,GAAE;IACV,IAAA,4BAAU,GAAE;;gDACI;AAKjB;IAHC,IAAA,yBAAO,EAAC,kCAAkC,EAAE;QAC3C,OAAO,EAAE,iDAAiD;KAC3D,CAAC;;oDACmB"}
