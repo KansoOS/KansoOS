@@ -6,13 +6,18 @@ import type {
   Me,
   Policy,
   RequestItem,
+  SpaceSummary,
 } from "../api/types";
 
 export const mockMe: Me = {
-  id: "user-1",
-  identifiant: "aidant.demo",
-  espaces: [{ id: "space-1", nom_affichage: "Espace de Léo" }],
+  id: "helper-1",
+  email: "aidant.demo@kanso.test",
+  createdAt: "2026-01-01T00:00:00.000Z",
 };
+
+// Pas encore porté par /v1/me côté backend-mdm (seule l'identité de l'aidant
+// y est exposée pour l'instant) : gardé à part pour les routes espaces/mandat.
+export const mockSpaces: SpaceSummary[] = [{ id: "space-1", nom_affichage: "Espace de Léo" }];
 
 export const mockMandate: Mandate = {
   id: "mandate-1",

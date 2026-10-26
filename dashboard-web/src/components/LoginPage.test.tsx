@@ -4,13 +4,13 @@ import { describe, expect, it, vi } from "vitest";
 import { LoginPage } from "./LoginPage";
 
 describe("LoginPage", () => {
-  it("ouvre la session après un identifiant/mot de passe et un code TOTP valides", async () => {
+  it("ouvre la session après un email/mot de passe et un code TOTP valides (compte avec MFA)", async () => {
     const onLoginSuccess = vi.fn();
     const user = userEvent.setup();
     render(<LoginPage onLoginSuccess={onLoginSuccess} />);
 
-    await user.type(screen.getByLabelText("Identifiant"), "test");
-    await user.type(screen.getByLabelText("Mot de passe"), "test");
+    await user.type(screen.getByLabelText("Adresse e-mail"), "test@kanso.test");
+    await user.type(screen.getByLabelText("Mot de passe"), "test1234");
     await user.click(screen.getByRole("button", { name: "Se connecter" }));
 
     const totpInput = await screen.findByLabelText("Code de l'application d'authentification");
@@ -20,16 +20,29 @@ describe("LoginPage", () => {
     await vi.waitFor(() => expect(onLoginSuccess).toHaveBeenCalledTimes(1));
   });
 
-  it("affiche une erreur et reste sur l'écran login si l'identifiant/mot de passe est incorrect", async () => {
+  it("ouvre la session directement, sans étape TOTP, pour un compte sans MFA", async () => {
     const onLoginSuccess = vi.fn();
     const user = userEvent.setup();
     render(<LoginPage onLoginSuccess={onLoginSuccess} />);
 
-    await user.type(screen.getByLabelText("Identifiant"), "wrong");
-    await user.type(screen.getByLabelText("Mot de passe"), "wrong");
+    await user.type(screen.getByLabelText("Adresse e-mail"), "nomfa@kanso.test");
+    await user.type(screen.getByLabelText("Mot de passe"), "nomfa1234");
     await user.click(screen.getByRole("button", { name: "Se connecter" }));
 
-    expect(await screen.findByText("Identifiant ou mot de passe incorrect.")).toBeInTheDocument();
+    await vi.waitFor(() => expect(onLoginSuccess).toHaveBeenCalledTimes(1));
+    expect(screen.queryByLabelText("Code de l'application d'authentification")).not.toBeInTheDocument();
+  });
+
+  it("affiche une erreur et reste sur l'écran login si l'email/mot de passe est incorrect", async () => {
+    const onLoginSuccess = vi.fn();
+    const user = userEvent.setup();
+    render(<LoginPage onLoginSuccess={onLoginSuccess} />);
+
+    await user.type(screen.getByLabelText("Adresse e-mail"), "wrong@kanso.test");
+    await user.type(screen.getByLabelText("Mot de passe"), "wrongpass");
+    await user.click(screen.getByRole("button", { name: "Se connecter" }));
+
+    expect(await screen.findByText("Adresse e-mail ou mot de passe incorrect.")).toBeInTheDocument();
     expect(screen.queryByLabelText("Code de l'application d'authentification")).not.toBeInTheDocument();
     expect(onLoginSuccess).not.toHaveBeenCalled();
   });
@@ -39,8 +52,8 @@ describe("LoginPage", () => {
     const user = userEvent.setup();
     render(<LoginPage onLoginSuccess={onLoginSuccess} />);
 
-    await user.type(screen.getByLabelText("Identifiant"), "test");
-    await user.type(screen.getByLabelText("Mot de passe"), "test");
+    await user.type(screen.getByLabelText("Adresse e-mail"), "test@kanso.test");
+    await user.type(screen.getByLabelText("Mot de passe"), "test1234");
     await user.click(screen.getByRole("button", { name: "Se connecter" }));
 
     const totpInput = await screen.findByLabelText("Code de l'application d'authentification");

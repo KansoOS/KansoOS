@@ -5,9 +5,9 @@ import { useT } from '../i18n/useI18n';
 function SignupForm() {
     const t = useT();
     const [state, setState] = useState({
-        identifiant: '',
-        mot_de_passe: '',
-        confirmation_mot_de_passe: '',
+        email: '',
+        password: '',
+        confirmationPassword: '',
     });
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<boolean>(false);
@@ -23,14 +23,14 @@ function SignupForm() {
                     e.preventDefault();
                     setError(null);
 
-                    if (state.mot_de_passe !== state.confirmation_mot_de_passe) {
+                    if (state.password !== state.confirmationPassword) {
                         setError(t('auth.signup.errorMismatch'));
                         return;
                     }
 
                     setSubmitting(true);
                     try {
-                        await signup(state.identifiant, state.mot_de_passe, state.confirmation_mot_de_passe)
+                        await signup(state.email, state.password)
                         setSuccess(true);
                     } catch {
                         setError(t('auth.signup.errorGeneric'));
@@ -39,36 +39,36 @@ function SignupForm() {
                     }
                 }}>
                     <div className="auth-field">
-                        <label htmlFor="identifiant">{t('auth.signup.identifiant')}</label>
+                        <label htmlFor="email">{t('auth.signup.email')}</label>
                         <input
-                            type="text"
-                            id="identifiant"
-                            name="identifiant"
+                            type="email"
+                            id="email"
+                            name="email"
                             required
-                            value={state.identifiant}
-                            onChange={(e) => setState({ ...state, identifiant: e.target.value })}
+                            value={state.email}
+                            onChange={(e) => setState({ ...state, email: e.target.value })}
                         />
                     </div>
                     <div className="auth-field">
-                        <label htmlFor="mot_de_passe">{t('auth.signup.motDePasse')}</label>
+                        <label htmlFor="password">{t('auth.signup.motDePasse')}</label>
                         <input
                             type="password"
-                            id="mot_de_passe"
-                            name="mot_de_passe"
+                            id="password"
+                            name="password"
                             required
-                            value={state.mot_de_passe}
-                            onChange={(e) => setState({ ...state, mot_de_passe: e.target.value })}
+                            value={state.password}
+                            onChange={(e) => setState({ ...state, password: e.target.value })}
                         />
                     </div>
                     <div className="auth-field">
-                        <label htmlFor="confirmation_mot_de_passe">{t('auth.signup.confirmation')}</label>
+                        <label htmlFor="confirmation_password">{t('auth.signup.confirmation')}</label>
                         <input
                             type="password"
-                            id="confirmation_mot_de_passe"
-                            name="confirmation_mot_de_passe"
+                            id="confirmation_password"
+                            name="confirmation_password"
                             required
-                            value={state.confirmation_mot_de_passe}
-                            onChange={(e) => setState({ ...state, confirmation_mot_de_passe: e.target.value })}
+                            value={state.confirmationPassword}
+                            onChange={(e) => setState({ ...state, confirmationPassword: e.target.value })}
                         />
                     </div>
                     {error && <p className="auth-error">{error}</p>}

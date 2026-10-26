@@ -8,8 +8,8 @@ describe("App", () => {
     const user = userEvent.setup();
     const { unmount } = render(<App />);
 
-    await user.type(await screen.findByLabelText("Identifiant"), "test");
-    await user.type(screen.getByLabelText("Mot de passe"), "test");
+    await user.type(await screen.findByLabelText("Adresse e-mail"), "test@kanso.test");
+    await user.type(screen.getByLabelText("Mot de passe"), "test1234");
     await user.click(screen.getByRole("button", { name: "Se connecter" }));
 
     const totpInput = await screen.findByLabelText("Code de l'application d'authentification");
@@ -27,7 +27,7 @@ describe("App", () => {
   it("n'est pas connecté au premier chargement sans session existante", async () => {
     render(<App />);
 
-    expect(await screen.findByLabelText("Identifiant")).toBeInTheDocument();
+    expect(await screen.findByLabelText("Adresse e-mail")).toBeInTheDocument();
     expect(screen.queryByText(/Connecté en tant que/)).not.toBeInTheDocument();
   });
 
@@ -35,15 +35,15 @@ describe("App", () => {
     const user = userEvent.setup();
     const { unmount } = render(<App />);
 
-    await screen.findByLabelText("Identifiant");
+    await screen.findByLabelText("Adresse e-mail");
     await user.selectOptions(screen.getByLabelText("Langue"), "en");
 
-    expect(await screen.findByLabelText("Username")).toBeInTheDocument();
-    expect(screen.queryByLabelText("Identifiant")).not.toBeInTheDocument();
+    expect(await screen.findByLabelText("Email address")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Adresse e-mail")).not.toBeInTheDocument();
 
     unmount();
     render(<App />);
 
-    expect(await screen.findByLabelText("Username")).toBeInTheDocument();
+    expect(await screen.findByLabelText("Email address")).toBeInTheDocument();
   });
 });

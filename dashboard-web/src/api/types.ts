@@ -14,20 +14,27 @@ export interface SpaceSummary {
   nom_affichage: string;
 }
 
+// Le backend-mdm (voir ../../backend-mdm/src/auth) ne gère pour l'instant que
+// l'identité de l'aidant : pas encore d'espaces/mandat sur /me.
 export interface Me {
   id: string;
-  identifiant: string;
-  espaces: SpaceSummary[];
+  email: string;
+  createdAt: string;
 }
 
 export interface SignupResult {
   id: string;
-  identifiant: string;
+  email: string;
+  createdAt: string;
 }
 
-export interface LoginChallenge {
-  totp_challenge: string;
-}
+/**
+ * Réponse de /v1/auth/login et /v1/auth/login/totp : soit le MFA est requis
+ * (compte avec TOTP activé) et il faut rejouer le code sur /login/totp, soit
+ * la connexion est immédiate et un access token (JWT, à poser en
+ * Authorization: Bearer) est renvoyé.
+ */
+export type LoginResult = { mfaRequired: true; mfaToken: string } | { accessToken: string };
 
 export interface Mandate {
   id: string;

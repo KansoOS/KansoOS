@@ -2,58 +2,78 @@
 
 ⚠️ Remplace intégralement le contrat v1 (obsolète, modèle parent/enfant). Ce contrat suit le vocabulaire du cahier des charges : espace d'accompagnement, mandat, aidant, personne accompagnée.
 
-Convention : JSON partout. Auth via cookie de session (HttpOnly/Secure) après connexion, sauf `/auth/*`. Toutes les routes préfixées `/v1`. Dates en ISO 8601.
+Convention : JSON partout. Toutes les routes préfixées `/v1`. Dates en ISO 8601.
+
+⚠️ **Section Auth à jour avec le code réel de `backend-mdm/src/auth`** (implémentée, KSOS-100). Le reste du contrat (espace, mandat, appareils, politique, contacts, journal/demandes) n'est **pas encore implémenté côté backend** — ce sont les routes mockées dans `dashboard-web/src/mocks`, à reconfirmer avec le backend quand il les implémentera.
 
 ---
 
 ## Auth
 
+Auth par **email/mot de passe**, MFA (TOTP) optionnelle par aidant, activée via `/auth/totp/setup` + `/auth/totp/enable` (hors scope dashboard actuel). `/v1/me` est protégée par un **access token JWT** à envoyer en `Authorization: Bearer <token>` (pas un cookie — c'est à la charge du client de le garder, cf. `dashboard-web/src/api/client.ts`). Un cookie de session distinct, `kanso_session` (HttpOnly/Secure), est posé au login uniquement pour `/auth/logout`.
+
 ### `POST /v1/auth/signup`
 **Body**
 ```json
-{ "identifiant": "string", "mot_de_passe": "string", "confirmation_mot_de_passe": "string" }
+{ "email": "string", "password": "string (8 caractères min.)" }
 ```
 **Réponse 201**
 ```json
-{ "id": "string", "identifiant": "string" }
+{ "id": "string", "email": "string", "createdAt": "ISO8601 string" }
 ```
-**Erreurs** : 409 si identifiant déjà utilisé, 400 si confirmation ne correspond pas.
+**Erreurs** : 409 si l'email est déjà utilisé.
 
 ### `POST /v1/auth/login`
 **Body**
 ```json
-{ "identifiant": "string", "mot_de_passe": "string" }
+{ "email": "string", "password": "string" }
 ```
-**Réponse 200**
-```json
-{ "totp_challenge": "string" }
-```
+**Réponse 200** — deux formes possibles :
+- MFA activée sur le compte :
+  ```json
+  { "mfaRequired": true, "mfaToken": "string (JWT, 5 min)" }
+  ```
+  → à rejouer sur `POST /v1/auth/login/totp` (ou `/login/recovery`).
+- MFA non activée : connexion immédiate.
+  ```json
+  { "accessToken": "string (JWT, 1h)" }
+  ```
+  Pose aussi le cookie `kanso_session` (12h, renouvelé à l'activité, 30 min d'inactivité max).
 
-### `POST /v1/auth/totp`
+**Erreurs** : 401 si email/mot de passe incorrect.
+
+### `POST /v1/auth/login/totp`
 **Body**
 ```json
-{ "totp_challenge": "string", "code": "string" }
+{ "mfaToken": "string", "code": "string (6 chiffres)" }
 ```
-**Réponse 200** — crée le cookie de session, pas de body métier.
+**Réponse 200** — même forme que le login réussi ci-dessus (`{ "accessToken": "string" }` + cookie).
+**Erreurs** : 401 si code invalide/mfaToken invalide, 429 après trop de tentatives (verrou 15 min).
+
+### `POST /v1/auth/login/recovery`
+**Body**
+```json
+{ "mfaToken": "string", "recoveryCode": "string (xxxx-xxxx-xxxx-xxxx)" }
+```
+**Réponse 200** — même forme que `/login/totp` (code de récupération à usage unique).
 
 ### `POST /v1/auth/logout`
-**Réponse 204**
+Authentifiée par le cookie `kanso_session` (pas par le bearer token).
+**Réponse 204** — détruit la session et efface le cookie.
 
 ### `GET /v1/me`
+Authentifiée par `Authorization: Bearer <accessToken>`.
 **Réponse 200**
 ```json
-{
-  "id": "string",
-  "identifiant": "string",
-  "espaces": [
-    { "id": "string", "nom_affichage": "string" }
-  ]
-}
+{ "id": "string", "email": "string", "createdAt": "ISO8601 string" }
 ```
+**Erreurs** : 401 si bearer token manquant/invalide/expiré.
 
 ---
 
 ## Espace et mandat
+
+> ⚠️ Pas encore implémenté côté `backend-mdm` — contrat cible, servi par les mocks (`dashboard-web/src/mocks`).
 
 ### `GET /v1/spaces/{id}`
 **Réponse 200**
@@ -81,6 +101,8 @@ Convention : JSON partout. Auth via cookie de session (HttpOnly/Secure) après c
 
 ## Appareils
 
+> ⚠️ Pas encore implémenté côté `backend-mdm` — contrat cible, servi par les mocks (`dashboard-web/src/mocks`).
+
 ### `POST /v1/spaces/{id}/devices/pairing-code`
 **Réponse 201**
 ```json
@@ -105,6 +127,8 @@ Convention : JSON partout. Auth via cookie de session (HttpOnly/Secure) après c
 ---
 
 ## Politique
+
+> ⚠️ Pas encore implémenté côté `backend-mdm` — contrat cible, servi par les mocks (`dashboard-web/src/mocks`).
 
 ### `GET /v1/spaces/{id}/policy`
 **Réponse 200**
@@ -138,6 +162,8 @@ Convention : JSON partout. Auth via cookie de session (HttpOnly/Secure) après c
 
 ## Contacts
 
+> ⚠️ Pas encore implémenté côté `backend-mdm` — contrat cible, servi par les mocks (`dashboard-web/src/mocks`).
+
 ### `GET /v1/spaces/{id}/contacts`
 **Réponse 200**
 ```json
@@ -166,6 +192,8 @@ Convention : JSON partout. Auth via cookie de session (HttpOnly/Secure) après c
 ---
 
 ## Journal et demandes
+
+> ⚠️ Pas encore implémenté côté `backend-mdm` — contrat cible, servi par les mocks (`dashboard-web/src/mocks`).
 
 ### `GET /v1/spaces/{id}/events`
 **Query params** : `page`, `type` (optionnel)
@@ -220,4 +248,4 @@ Conformément au §1 du cahier des charges : aucun contenu de message/SMS/naviga
 
 ---
 
-**Statut :** basé sur la section 5 du cahier des charges d'Elias + le ticket signup (KSOS-95). À reconfirmer avec lui si des noms de champs diffèrent une fois le code écrit.
+**Statut :** section Auth confirmée par le code de `backend-mdm` (KSOS-95, KSOS-38, KSOS-41, KSOS-100). Le reste est basé sur la section 5 du cahier des charges d'Elias — à reconfirmer avec lui quand ces routes seront implémentées côté backend.

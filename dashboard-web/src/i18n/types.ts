@@ -8,7 +8,7 @@ export interface Dictionary {
   auth: {
     login: {
       title: string;
-      identifiant: string;
+      email: string;
       motDePasse: string;
       submit: string;
       submitting: string;
@@ -23,7 +23,7 @@ export interface Dictionary {
     };
     signup: {
       title: string;
-      identifiant: string;
+      email: string;
       motDePasse: string;
       confirmation: string;
       submit: string;

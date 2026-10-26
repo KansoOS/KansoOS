@@ -3,13 +3,13 @@ import { LoginForm } from './LoginForm';
 import { TotpForm } from './TotpForm';
 
 function LoginPage({ onLoginSuccess }: { onLoginSuccess: () => void }) {
-    const [totpChallenge, setTotpChallenge] = useState<string | null>(null);
+    const [mfaToken, setMfaToken] = useState<string | null>(null);
 
-    if (totpChallenge) {
-        return <TotpForm totpChallenge={totpChallenge} onLoginSuccess={onLoginSuccess} />;
+    if (mfaToken) {
+        return <TotpForm mfaToken={mfaToken} onLoginSuccess={onLoginSuccess} />;
     }
 
-    return <LoginForm onChallengeReceived={(challenge) => setTotpChallenge(challenge)} />;
+    return <LoginForm onMfaRequired={(token) => setMfaToken(token)} onLoginSuccess={onLoginSuccess} />;
 }
 
 export { LoginPage };

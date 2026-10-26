@@ -28,7 +28,7 @@ function AppContent() {
           <LanguageSwitcher />
         </div>
         <div className="dashboard">
-          <p>{t("dashboard.greeting", { identifiant: me.identifiant })}</p>
+          <p>{t("dashboard.greeting", { email: me.email })}</p>
         </div>
       </div>
     )

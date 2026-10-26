@@ -13,6 +13,7 @@ import {
   mockMe,
   mockPolicy,
   mockRequests,
+  mockSpaces,
 } from "./data";
 
 let devices = [...mockDevices];
@@ -24,57 +25,74 @@ let policy = { ...mockPolicy, profils: { ...mockPolicy.profils } };
 let nextId = 100;
 const newId = (prefix: string) => `${prefix}-${nextId++}`;
 
-const isAuthenticated = () => document.cookie.includes("session=mock-session");
+// Miroir du comportement réel de backend-mdm/src/auth : connexion par
+// email/mot de passe, MFA optionnelle (mfaToken -> code TOTP), access token
+// en Authorization: Bearer (pas un cookie — voir src/api/client.ts).
+const MOCK_ACCESS_TOKEN = "mock-access-token";
+const MOCK_MFA_TOKEN = "mock-mfa-token";
+const MOCK_TOTP_CODE = "123456";
+
+const accounts: Record<string, { password: string; mfaEnabled: boolean }> = {
+  "test@kanso.test": { password: "test1234", mfaEnabled: true },
+  "nomfa@kanso.test": { password: "nomfa1234", mfaEnabled: false },
+};
+
+const bearerToken = (request: Request): string | null => {
+  const [scheme, token] = (request.headers.get("authorization") ?? "").split(" ");
+  return scheme === "Bearer" ? token : null;
+};
 
 export const handlers = [
   http.post("*/v1/auth/signup", async ({ request }) => {
-    const { identifiant, mot_de_passe, confirmation_mot_de_passe } = (await request.json()) as {
-      identifiant: string;
-      mot_de_passe: string;
-      confirmation_mot_de_passe: string;
-    };
-    if (identifiant === "existing_user") {
+    const { email, password } = (await request.json()) as { email: string; password: string };
+    if (email === "existing@kanso.test") {
       return new HttpResponse(null, { status: 409 });
-    } else if (identifiant === "error_user") {
+    } else if (email === "error@kanso.test") {
       return new HttpResponse(null, { status: 500 });
-    } else if (mot_de_passe !== confirmation_mot_de_passe) {
-      return new HttpResponse(null, { status: 400 });
     }
-    return HttpResponse.json({ id: newId("user"), identifiant }, { status: 201 });
+    accounts[email] = { password, mfaEnabled: false };
+    return HttpResponse.json(
+      { id: newId("helper"), email, createdAt: new Date().toISOString() },
+      { status: 201 }
+    );
   }),
 
   http.post("*/v1/auth/login", async ({ request }) => {
-    const { identifiant, mot_de_passe } = (await request.json()) as { identifiant: string; mot_de_passe: string };
-    if (identifiant === "test" && mot_de_passe === "test") {
-      return HttpResponse.json({ totp_challenge: "mock-totp-challenge" });
-    } else {
+    const { email, password } = (await request.json()) as { email: string; password: string };
+    const account = accounts[email];
+    if (!account || account.password !== password) {
       return new HttpResponse(null, { status: 401 });
     }
+    if (account.mfaEnabled) {
+      return HttpResponse.json({ mfaRequired: true, mfaToken: MOCK_MFA_TOKEN });
+    }
+    return HttpResponse.json({ accessToken: MOCK_ACCESS_TOKEN });
   }),
 
-  http.post("*/v1/auth/totp", async ({ request }) => {
-    const { code } = (await request.json()) as { totp_challenge: string; code: string };
-    if (code !== "123456") {
+  http.post("*/v1/auth/login/totp", async ({ request }) => {
+    const { mfaToken, code } = (await request.json()) as { mfaToken: string; code: string };
+    if (mfaToken !== MOCK_MFA_TOKEN) {
+      return new HttpResponse(null, { status: 401 });
+    }
+    if (code !== MOCK_TOTP_CODE) {
       return new HttpResponse(null, { status: 400 });
     }
-    document.cookie = "session=mock-session; path=/";
-    return new HttpResponse(null, { status: 200 });
+    return HttpResponse.json({ accessToken: MOCK_ACCESS_TOKEN });
   }),
 
   http.post("*/v1/auth/logout", () => {
-    document.cookie = "session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     return new HttpResponse(null, { status: 204 });
   }),
 
-  http.get("*/v1/me", () => {
-    if (!isAuthenticated()) {
+  http.get("*/v1/me", ({ request }) => {
+    if (bearerToken(request) !== MOCK_ACCESS_TOKEN) {
       return new HttpResponse(null, { status: 401 });
     }
     return HttpResponse.json(mockMe);
   }),
 
   http.get("*/v1/spaces/:id", ({ params }) => {
-    const space = mockMe.espaces.find((s) => s.id === params.id);
+    const space = mockSpaces.find((s) => s.id === params.id);
     if (!space) return new HttpResponse(null, { status: 404 });
     return HttpResponse.json(space);
   }),

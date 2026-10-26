@@ -2,11 +2,18 @@ import { useState } from 'react';
 import { login } from '../api';
 import { useT } from '../i18n/useI18n';
 
-function LoginForm({ onChallengeReceived }: { onChallengeReceived: (challenge: string) => void }) {
+interface LoginFormProps {
+    // Compte avec MFA activé : il faut rejouer le code TOTP via le mfaToken.
+    onMfaRequired: (mfaToken: string) => void;
+    // Compte sans MFA : la connexion est déjà effective.
+    onLoginSuccess: () => void;
+}
+
+function LoginForm({ onMfaRequired, onLoginSuccess }: LoginFormProps) {
     const t = useT();
     const [state, setState] = useState({
-        identifiant: '',
-        mot_de_passe: '',
+        email: '',
+        password: '',
     });
     const [error, setError] = useState<string | null>(null);
     const [submitting, setSubmitting] = useState(false);
@@ -19,8 +26,12 @@ function LoginForm({ onChallengeReceived }: { onChallengeReceived: (challenge: s
                 setError(null);
                 setSubmitting(true);
                 try {
-                    const response = await login(state.identifiant, state.mot_de_passe);
-                    onChallengeReceived(response.totp_challenge);
+                    const result = await login(state.email, state.password);
+                    if ('mfaRequired' in result) {
+                        onMfaRequired(result.mfaToken);
+                    } else {
+                        onLoginSuccess();
+                    }
                 } catch {
                     setError(t('auth.login.error'));
                 } finally {
@@ -28,14 +39,14 @@ function LoginForm({ onChallengeReceived }: { onChallengeReceived: (challenge: s
                 }
             }}>
                 <div className="auth-field">
-                    <label htmlFor="username">{t('auth.login.identifiant')}</label>
+                    <label htmlFor="email">{t('auth.login.email')}</label>
                     <input
-                        type="text"
-                        id="username"
-                        name="username"
+                        type="email"
+                        id="email"
+                        name="email"
                         required
-                        value={state.identifiant}
-                        onChange={(e) => setState({ ...state, identifiant: e.target.value })}
+                        value={state.email}
+                        onChange={(e) => setState({ ...state, email: e.target.value })}
                     />
                 </div>
                 <div className="auth-field">
@@ -45,8 +56,8 @@ function LoginForm({ onChallengeReceived }: { onChallengeReceived: (challenge: s
                         id="password"
                         name="password"
                         required
-                        value={state.mot_de_passe}
-                        onChange={(e) => setState({ ...state, mot_de_passe: e.target.value })}
+                        value={state.password}
+                        onChange={(e) => setState({ ...state, password: e.target.value })}
                     />
                 </div>
                 {error && <p className="auth-error">{error}</p>}

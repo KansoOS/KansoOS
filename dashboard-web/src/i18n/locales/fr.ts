@@ -9,11 +9,11 @@ const fr: Dictionary = {
   auth: {
     login: {
       title: "Connexion",
-      identifiant: "Identifiant",
+      email: "Adresse e-mail",
       motDePasse: "Mot de passe",
       submit: "Se connecter",
       submitting: "Connexion...",
-      error: "Identifiant ou mot de passe incorrect.",
+      error: "Adresse e-mail ou mot de passe incorrect.",
     },
     totp: {
       title: "Vérification en deux étapes",
@@ -24,7 +24,7 @@ const fr: Dictionary = {
     },
     signup: {
       title: "Créer un compte",
-      identifiant: "Identifiant",
+      email: "Adresse e-mail",
       motDePasse: "Mot de passe",
       confirmation: "Confirmer le mot de passe",
       submit: "S'inscrire",
@@ -42,7 +42,7 @@ const fr: Dictionary = {
   },
   dashboard: {
     title: "Dashboard",
-    greeting: "Connecté en tant que {{identifiant}} !",
+    greeting: "Connecté en tant que {{email}} !",
   },
   language: {
     label: "Langue",

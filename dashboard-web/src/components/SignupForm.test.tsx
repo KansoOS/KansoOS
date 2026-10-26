@@ -8,7 +8,7 @@ describe("SignupForm", () => {
     const user = userEvent.setup();
     render(<SignupForm />);
 
-    await user.type(screen.getByLabelText("Identifiant"), "nouvel_utilisateur");
+    await user.type(screen.getByLabelText("Adresse e-mail"), "nouvel.utilisateur@kanso.test");
     await user.type(screen.getByLabelText("Mot de passe"), "motdepasse123");
     await user.type(screen.getByLabelText("Confirmer le mot de passe"), "motdepasse123");
     await user.click(screen.getByRole("button", { name: "S'inscrire" }));
@@ -20,7 +20,7 @@ describe("SignupForm", () => {
     const user = userEvent.setup();
     render(<SignupForm />);
 
-    await user.type(screen.getByLabelText("Identifiant"), "nouvel_utilisateur");
+    await user.type(screen.getByLabelText("Adresse e-mail"), "nouvel.utilisateur@kanso.test");
     await user.type(screen.getByLabelText("Mot de passe"), "motdepasse123");
     await user.type(screen.getByLabelText("Confirmer le mot de passe"), "autrechose");
     await user.click(screen.getByRole("button", { name: "S'inscrire" }));
@@ -28,11 +28,11 @@ describe("SignupForm", () => {
     expect(await screen.findByText("Les mots de passe ne correspondent pas.")).toBeInTheDocument();
   });
 
-  it("affiche une erreur si l'identifiant est déjà pris", async () => {
+  it("affiche une erreur si l'email est déjà pris", async () => {
     const user = userEvent.setup();
     render(<SignupForm />);
 
-    await user.type(screen.getByLabelText("Identifiant"), "existing_user");
+    await user.type(screen.getByLabelText("Adresse e-mail"), "existing@kanso.test");
     await user.type(screen.getByLabelText("Mot de passe"), "motdepasse123");
     await user.type(screen.getByLabelText("Confirmer le mot de passe"), "motdepasse123");
     await user.click(screen.getByRole("button", { name: "S'inscrire" }));

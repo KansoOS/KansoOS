@@ -8,11 +8,11 @@ const en: Dictionary = {
   auth: {
     login: {
       title: "Log in",
-      identifiant: "Username",
+      email: "Email address",
       motDePasse: "Password",
       submit: "Log in",
       submitting: "Logging in...",
-      error: "Incorrect username or password.",
+      error: "Incorrect email or password.",
     },
     totp: {
       title: "Two-factor verification",
@@ -23,7 +23,7 @@ const en: Dictionary = {
     },
     signup: {
       title: "Create an account",
-      identifiant: "Username",
+      email: "Email address",
       motDePasse: "Password",
       confirmation: "Confirm password",
       submit: "Sign up",
@@ -41,7 +41,7 @@ const en: Dictionary = {
   },
   dashboard: {
     title: "Dashboard",
-    greeting: "Logged in as {{identifiant}}!",
+    greeting: "Logged in as {{email}}!",
   },
   language: {
     label: "Language",

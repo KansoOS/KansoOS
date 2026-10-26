@@ -2,7 +2,7 @@ import { useState } from "react";
 import { verifyTotp } from "../api";
 import { useT } from "../i18n/useI18n";
 
-function TotpForm({ totpChallenge, onLoginSuccess }: { totpChallenge: string; onLoginSuccess: () => void }) {
+function TotpForm({ mfaToken, onLoginSuccess }: { mfaToken: string; onLoginSuccess: () => void }) {
     const t = useT();
     const [totpCode, setTotpCode] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -16,7 +16,7 @@ function TotpForm({ totpChallenge, onLoginSuccess }: { totpChallenge: string; on
                 setError(null);
                 setSubmitting(true);
                 try {
-                    await verifyTotp(totpChallenge, totpCode);
+                    await verifyTotp(mfaToken, totpCode);
                     onLoginSuccess();
                 } catch {
                     setError(t('auth.totp.error'));
