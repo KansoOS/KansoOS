@@ -11,7 +11,8 @@ export type MandatePermission = string;
 
 export interface SpaceSummary {
   id: string;
-  nom_affichage: string;
+  pseudonym: string;
+  createdAt: string;
 }
 
 // Le backend-mdm (voir ../../backend-mdm/src/auth) ne gère pour l'instant que
@@ -36,13 +37,20 @@ export interface SignupResult {
  */
 export type LoginResult = { mfaRequired: true; mfaToken: string } | { accessToken: string };
 
+// GET /v1/spaces/:spaceId/mandate ne renvoie que le mandat en vigueur,
+// c'est-à-dire celui dont revokedAt est null et dont la période startDate à
+// endDate couvre maintenant, donc il n'y a pas d'historique des mandats
+// révoqués ou expirés pour l'instant côté backend.
 export interface Mandate {
   id: string;
-  perimetre: MandatePermission[];
-  date_debut: string;
-  date_fin: string;
-  revoque_le: string | null;
-  revoque_par: string | null;
+  spaceId: string;
+  helperId: string;
+  scope: MandatePermission[];
+  startDate: string;
+  endDate: string;
+  revokedAt: string | null;
+  revokedById: string | null;
+  createdAt: string;
 }
 
 export interface Device {

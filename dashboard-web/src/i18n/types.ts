@@ -43,6 +43,20 @@ export interface Dictionary {
     title: string;
     greeting: string;
   };
+  space: {
+    idLabel: string;
+    idPlaceholder: string;
+    show: string;
+    change: string;
+    notFound: string;
+    createdAt: string;
+    mandate: {
+      title: string;
+      scopeTitle: string;
+      period: string;
+      none: string;
+    };
+  };
   language: {
     label: string;
     fr: string;

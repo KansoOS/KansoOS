@@ -31,6 +31,29 @@ describe("App", () => {
     expect(screen.queryByText(/Connecté en tant que/)).not.toBeInTheDocument();
   });
 
+  it("affiche l'espace et le mandat une fois l'identifiant saisi, et retient le choix après un remontage", async () => {
+    const user = userEvent.setup();
+    const { unmount } = render(<App />);
+
+    await user.type(await screen.findByLabelText("Adresse e-mail"), "nomfa@kanso.test");
+    await user.type(screen.getByLabelText("Mot de passe"), "nomfa1234");
+    await user.click(screen.getByRole("button", { name: "Se connecter" }));
+
+    await user.type(await screen.findByLabelText("Identifiant de l'espace"), "space-1");
+    await user.click(screen.getByRole("button", { name: "Afficher" }));
+
+    expect(await screen.findByText("Espace de Léo")).toBeInTheDocument();
+    expect(screen.getByText("contacts.gerer")).toBeInTheDocument();
+
+    unmount();
+    render(<App />);
+
+    expect(await screen.findByText("Espace de Léo")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Changer d'espace" }));
+    expect(await screen.findByLabelText("Identifiant de l'espace")).toBeInTheDocument();
+  });
+
   it("change la langue de l'interface et retient le choix après un remontage", async () => {
     const user = userEvent.setup();
     const { unmount } = render(<App />);

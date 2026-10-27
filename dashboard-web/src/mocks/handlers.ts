@@ -97,14 +97,14 @@ export const handlers = [
     return HttpResponse.json(space);
   }),
 
-  http.get("*/v1/spaces/:id/mandate", () => {
+  http.get("*/v1/spaces/:id/mandate", ({ params }) => {
+    // Comme le backend, on renvoie une 404 s'il n'y a aucun mandat en vigueur
+    // pour cet espace, et il n'y a pas de route de révocation à mocker
+    // puisqu'elle n'existe pas encore.
+    if (params.id !== mandate.spaceId) {
+      return new HttpResponse(null, { status: 404 });
+    }
     return HttpResponse.json(mandate);
-  }),
-
-  http.post("*/v1/spaces/:id/mandate/revoke", () => {
-    mandate.revoque_le = new Date().toISOString();
-    mandate.revoque_par = mockMe.id;
-    return new HttpResponse(null, { status: 204 });
   }),
 
   http.post("*/v1/spaces/:id/devices/pairing-code", () => {

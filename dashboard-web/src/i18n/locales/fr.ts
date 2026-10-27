@@ -44,6 +44,20 @@ const fr: Dictionary = {
     title: "Dashboard",
     greeting: "Connecté en tant que {{email}} !",
   },
+  space: {
+    idLabel: "Identifiant de l'espace",
+    idPlaceholder: "ex. 3f6a1c2e-...",
+    show: "Afficher",
+    change: "Changer d'espace",
+    notFound: "Espace introuvable.",
+    createdAt: "Créé le {{date}}",
+    mandate: {
+      title: "Mandat en vigueur",
+      scopeTitle: "Périmètre",
+      period: "Du {{start}} au {{end}}",
+      none: "Aucun mandat en vigueur pour cet espace.",
+    },
+  },
   language: {
     label: "Langue",
     fr: "Français",

@@ -43,6 +43,20 @@ const en: Dictionary = {
     title: "Dashboard",
     greeting: "Logged in as {{email}}!",
   },
+  space: {
+    idLabel: "Space ID",
+    idPlaceholder: "e.g. 3f6a1c2e-...",
+    show: "Show",
+    change: "Change space",
+    notFound: "Space not found.",
+    createdAt: "Created on {{date}}",
+    mandate: {
+      title: "Active mandate",
+      scopeTitle: "Scope",
+      period: "From {{start}} to {{end}}",
+      none: "No active mandate for this space.",
+    },
+  },
   language: {
     label: "Language",
     fr: "Français",
