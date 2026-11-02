@@ -8,6 +8,7 @@ describe("App", () => {
     const user = userEvent.setup();
     const { unmount } = render(<App />);
 
+    await user.click(await screen.findByRole("button", { name: "Connexion" }));
     await user.type(await screen.findByLabelText("Adresse e-mail"), "test@kanso.test");
     await user.type(screen.getByLabelText("Mot de passe"), "test1234");
     await user.click(screen.getByRole("button", { name: "Se connecter" }));
@@ -25,7 +26,10 @@ describe("App", () => {
   });
 
   it("n'est pas connecté au premier chargement sans session existante", async () => {
+    const user = userEvent.setup();
     render(<App />);
+
+    await user.click(await screen.findByRole("button", { name: "Connexion" }));
 
     expect(await screen.findByLabelText("Adresse e-mail")).toBeInTheDocument();
     expect(screen.queryByText(/Connecté en tant que/)).not.toBeInTheDocument();
@@ -35,6 +39,7 @@ describe("App", () => {
     const user = userEvent.setup();
     const { unmount } = render(<App />);
 
+    await user.click(await screen.findByRole("button", { name: "Connexion" }));
     await user.type(await screen.findByLabelText("Adresse e-mail"), "nomfa@kanso.test");
     await user.type(screen.getByLabelText("Mot de passe"), "nomfa1234");
     await user.click(screen.getByRole("button", { name: "Se connecter" }));
@@ -54,10 +59,36 @@ describe("App", () => {
     expect(await screen.findByLabelText("Identifiant de l'espace")).toBeInTheDocument();
   });
 
+  it("revient à l'écran de connexion après déconnexion, et oublie l'espace choisi", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(await screen.findByRole("button", { name: "Connexion" }));
+    await user.type(await screen.findByLabelText("Adresse e-mail"), "nomfa@kanso.test");
+    await user.type(screen.getByLabelText("Mot de passe"), "nomfa1234");
+    await user.click(screen.getByRole("button", { name: "Se connecter" }));
+
+    await user.type(await screen.findByLabelText("Identifiant de l'espace"), "space-1");
+    await user.click(screen.getByRole("button", { name: "Afficher" }));
+    await screen.findByText("Espace de Léo");
+
+    await user.click(screen.getByRole("button", { name: "Se déconnecter" }));
+
+    expect(await screen.findByLabelText("Adresse e-mail")).toBeInTheDocument();
+    expect(screen.queryByText(/Connecté en tant que/)).not.toBeInTheDocument();
+
+    await user.type(screen.getByLabelText("Adresse e-mail"), "nomfa@kanso.test");
+    await user.type(screen.getByLabelText("Mot de passe"), "nomfa1234");
+    await user.click(screen.getByRole("button", { name: "Se connecter" }));
+
+    expect(await screen.findByLabelText("Identifiant de l'espace")).toBeInTheDocument();
+  });
+
   it("change la langue de l'interface et retient le choix après un remontage", async () => {
     const user = userEvent.setup();
     const { unmount } = render(<App />);
 
+    await user.click(await screen.findByRole("button", { name: "Connexion" }));
     await screen.findByLabelText("Adresse e-mail");
     await user.selectOptions(screen.getByLabelText("Langue"), "en");
 
@@ -67,6 +98,7 @@ describe("App", () => {
     unmount();
     render(<App />);
 
+    await user.click(await screen.findByRole("button", { name: "Sign in" }));
     expect(await screen.findByLabelText("Email address")).toBeInTheDocument();
   });
 });

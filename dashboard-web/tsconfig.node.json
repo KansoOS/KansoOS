@@ -2,7 +2,9 @@
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
     "target": "es2023",
-    "lib": ["ES2023"],
+    /* DOM en plus d'ES2023 : les callbacks page.evaluate() dans e2e/ tournent
+       dans le navigateur, pas dans Node, et référencent document/window. */
+    "lib": ["ES2023", "DOM"],
     "types": ["node"],
     "skipLibCheck": true,
 
@@ -19,5 +21,5 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["vite.config.ts"]
+  "include": ["vite.config.ts", "playwright.config.ts", "e2e/**/*.ts"]
 }

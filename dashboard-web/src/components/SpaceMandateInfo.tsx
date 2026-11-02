@@ -1,6 +1,7 @@
 import { ApiError } from '../api';
 import { useMandate, useSpace } from '../hooks/useSpace';
 import { useT } from '../i18n/useI18n';
+import { BuildingIcon, ScrollIcon } from './icons';
 
 // On formate explicitement en UTC parce que ce sont des dates de validité,
 // un jour calendaire, pas un instant précis, et sans ça l'affichage décale
@@ -41,10 +42,16 @@ function SpaceMandateInfo({ spaceId, locale }: { spaceId: string; locale: string
 
     return (
         <div className="auth-card space-card">
-            <h2>{space.pseudonym}</h2>
+            <div className="space-card-title">
+                <BuildingIcon />
+                <h2>{space.pseudonym}</h2>
+            </div>
             <p className="space-meta">{t('space.createdAt', { date: formatDate(space.createdAt, locale) })}</p>
 
-            <h3>{t('space.mandate.title')}</h3>
+            <div className="space-card-title space-card-subtitle">
+                <ScrollIcon />
+                <h3>{t('space.mandate.title')}</h3>
+            </div>
             {hasNoMandate || !mandate ? (
                 <p className="mandate-empty">{t('space.mandate.none')}</p>
             ) : (

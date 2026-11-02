@@ -4,6 +4,7 @@ export interface Dictionary {
   common: {
     appName: string;
     loading: string;
+    skipToContent: string;
   };
   auth: {
     login: {
@@ -43,8 +44,58 @@ export interface Dictionary {
     title: string;
     greeting: string;
   };
+  nav: {
+    logout: string;
+    login: string;
+  };
+  tabs: {
+    label: string;
+    overview: string;
+    devices: string;
+  };
+  devices: {
+    title: string;
+    noSpace: string;
+    summary: string;
+    summaryAttention: string;
+    empty: string;
+    statusOk: string;
+    statusAttention: string;
+    lastSync: string;
+    add: string;
+    addTitle: string;
+    addInstructions: string;
+    codeLabel: string;
+    expiresAt: string;
+    close: string;
+    revoke: string;
+    revokeConfirm: string;
+    errorGeneric: string;
+    viewAll: string;
+  };
+  landing: {
+    heroTitle: string;
+    heroSubtitle: string;
+    feature1Title: string;
+    feature1Body: string;
+    feature2Title: string;
+    feature2Body: string;
+    feature3Title: string;
+    feature3Body: string;
+  };
+  footer: {
+    dataMinimization: string;
+    privacyToggle: string;
+    privacyDetail: string;
+    legalToggle: string;
+    legalDetail: string;
+    contactToggle: string;
+    contactDetail: string;
+    copyright: string;
+  };
   space: {
     idLabel: string;
+    idExplain: string;
     idPlaceholder: string;
     show: string;
     change: string;

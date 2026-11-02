@@ -2,14 +2,34 @@
   --text: #6b6375;
   --text-h: #08060d;
   --bg: #fff;
+  /* Fond de la zone applicative (tableau de bord), un ton plus soutenu que
+     --bg pour que les cartes blanches se détachent dessus. */
+  --canvas: #f6f5f9;
   --border: #e5e4e7;
   --code-bg: #f4f3ec;
   --accent: #aa3bff;
+  /* Version plus sombre de --accent pour du texte lisible (liens), --accent
+     lui-même ne passe pas 4.5:1 en petite taille sur --canvas (mesuré : 4.04). */
+  --accent-text: #8a1fd6;
   --accent-bg: rgba(170, 59, 255, 0.1);
   --accent-border: rgba(170, 59, 255, 0.5);
   --social-bg: rgba(244, 243, 236, 0.5);
   --error: #dc2626;
   --error-bg: rgba(220, 38, 38, 0.08);
+  /* Ton chaud secondaire (inspiré d'une page d'accompagnement senior) : pour
+     humaniser l'écran d'accueil et distinguer "bon état"/"à surveiller" sur
+     les appareils — jamais pour du texte critique, juste de la décoration
+     et des fonds doux. */
+  --warm: #d97a52;
+  --warm-bg: rgba(217, 122, 82, 0.12);
+  --ok: #16a34a;
+  --ok-bg: rgba(22, 163, 74, 0.1);
+  /* Versions texte, plus sombres : --ok/--attention seuls ne passent que
+     ~3:1 (mesuré), insuffisant pour du texte normal (4.5:1 requis). */
+  --ok-text: #0a6b31;
+  --attention: #d97706;
+  --attention-bg: rgba(217, 119, 6, 0.12);
+  --attention-text: #9a5103;
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
@@ -37,14 +57,26 @@
     --text: #9ca3af;
     --text-h: #f3f4f6;
     --bg: #16171d;
+    --canvas: #0e0f13;
     --border: #2e303a;
     --code-bg: #1f2028;
     --accent: #c084fc;
+    /* Déjà lisible en sombre (mesuré : 6.77:1 sur --bg), pas besoin d'une
+       variante plus sombre comme en clair. */
+    --accent-text: var(--accent);
     --accent-bg: rgba(192, 132, 252, 0.15);
     --accent-border: rgba(192, 132, 252, 0.5);
     --social-bg: rgba(47, 48, 58, 0.5);
     --error: #f87171;
     --error-bg: rgba(248, 113, 113, 0.12);
+    --warm: #e8946f;
+    --warm-bg: rgba(232, 148, 111, 0.15);
+    --ok: #4ade80;
+    --ok-bg: rgba(74, 222, 128, 0.14);
+    --ok-text: var(--ok);
+    --attention: #fbbf24;
+    --attention-bg: rgba(251, 191, 36, 0.15);
+    --attention-text: var(--attention);
     --shadow:
       rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
   }
@@ -52,6 +84,15 @@
   #social .button-icon {
     filter: invert(1) brightness(2);
   }
+}
+
+/* Reset standard : sans ça, un padding ajouté par une media query (ex. sur
+   .app en dessous de 640px) s'ajoute à un width: 100% au lieu d'être inclus
+   dedans, ce qui dépasse la largeur de l'écran. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 #root {
